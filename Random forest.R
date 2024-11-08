@@ -427,6 +427,53 @@ partialPlot(model_train_test, data_balanced, "Biztanlegoa_B", "Bai",
 
 
 
+# Interaction analysis-------------------------
+
+# Interacción entre AF con amigos y participación en competiciones
+interaction_plot <- table(data$Practica_AF_con_amigos_as, 
+                          data$Participa_en_competiciones,
+                          data$dia_de_AF)
+# Cargar librerías necesarias
+library(dplyr)
+library(tidyr)
+
+# Convertir la tabla en un data frame
+df <- as.data.frame(interaction_plot)
+
+# Renombrar columnas para facilitar la manipulación
+colnames(df) <- c("Practica_AF_con_amigos_as", "Participa_en_competiciones", "dia_de_AF", "Freq")
+
+# Calcular proporciones dentro de cada combinación de Practica_AF_con_amigos_as y Participa_en_competiciones
+df <- df %>%
+  group_by(Practica_AF_con_amigos_as, Participa_en_competiciones) %>%
+  mutate(Proporcion = Freq / sum(Freq) * 100) %>%
+  ungroup()
+
+# Convertir de nuevo a formato tabla para visualizar mejor
+tabla_final <- df %>%
+  select(-Freq) %>%
+  spread(key = dia_de_AF, value = Proporcion)
+
+# Imprimir la tabla resultante
+print(tabla_final)
+
+
+
+
+
+
+
+
+
+
+
+
+
+print("Interacción AF amigos x Competiciones:")
+prop.table(interaction_plot, margin=1)
+
+
+
 
 
 
@@ -627,9 +674,10 @@ par(mfrow=c(1,1))
 
 
 
-# Análisis adicionales ----------------------------------------------------
 
-# 1. ANÁLISIS DE INTERACCIONES
+
+
+
 # Veamos si hay efectos sinérgicos entre las variables más importantes
 
 # Interacción entre AF con amigos y participación en competiciones
@@ -647,3 +695,15 @@ cforest_model <- cforest(dia_de_AF ~ ., data=train, controls=cforest_unbiased(nt
 varimp <- varimp(cforest_model)
 print("Importancia condicional de variables:")
 print(sort(varimp, decreasing=TRUE))
+
+
+# En RStudio, instala y carga el paquete usethis si no lo tienes
+install.packages("usethis")
+library(usethis)
+
+# Crear un token de GitHub
+usethis::create_github_token()
+
+# Guarda el token en tus credenciales
+library(gitcreds)
+gitcreds::gitcreds_set()
